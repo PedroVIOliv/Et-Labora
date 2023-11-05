@@ -6,9 +6,9 @@ import threading
 from trecho import trecho
 
 
-#create object to store in trechos that contains book, chapter, number and text
+#create object to store in snippets that contains book, chapter, number and text
 
-trechos = []
+snippets = []
 
 def get_trecho(url, xpath, number):
     
@@ -36,7 +36,7 @@ def get_trecho(url, xpath, number):
     tagList = []
     for tag in tags:
         tagList.append(tag.text)
-    trechos.append(trecho(book.text, chapter.text, number, toPrint, tagList))
+    snippets.append(trecho(book.text, chapter.text, number, toPrint, tagList))
 
 # Define the URLs and XPath
 urls = [f'https://escriva.org/pt-br/{book}/{number}/' for book, count in [('camino', 999), ('surco', 1000), ('forja', 1055)] for number in range(1, count+1)]
@@ -54,9 +54,9 @@ for i, url in enumerate(urls):
 # Wait for all threads to finish
 for thread in threads:
     thread.join()
-print(len(trechos))
-#save trechos in pickle file
-with open('trechos.pickle', 'wb') as handle:
-    pickle.dump(trechos, handle, protocol=pickle.HIGHEST_PROTOCOL)
+print(len(snippets))
+#save snippets in pickle file
+with open('snippets.pickle', 'wb') as handle:
+    pickle.dump(snippets, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
