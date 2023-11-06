@@ -1,0 +1,8 @@
+[package]
+name = "Et-Labora"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+scraper = "0.18.1"
+ureq = "2.8.0"
