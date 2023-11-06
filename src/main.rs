@@ -1,9 +1,14 @@
 use scraper::{Html, Selector};
 use ureq;
 
+const BASE_URL: &str = "https://escriva.org/pt-br/";
+
+static CONTROL: &[(&str, u32)] = &[("camino", 999), ("surco", 1000), ("forja", 1055)];
+
 struct Point {
+    book: String,
     text: String,
-    number: String,
+    number: u32,
 }
 
 fn get_page_content(url: &str) -> Result<String, ureq::Error> {
@@ -19,7 +24,8 @@ fn get_div_point(html: &str) -> Point {
 
     // Point contains a number and a text. I want to be able to just print it for now, and then store it on Point struct
     let mut current_point = Point {
-        number: String::new(),
+        book: String::new(),
+        number: 0,
         text: String::new(),
     };
 
@@ -28,7 +34,7 @@ fn get_div_point(html: &str) -> Point {
         let text_selector = Selector::parse("p").unwrap();
 
         if let Some(number) = node.select(&number_selector).next() {
-            current_point.number = number.text().collect();
+            current_point.number = number.text().collect::<String>().parse().unwrap();
         }
 
         if let Some(text) = node.select(&text_selector).next() {
@@ -40,12 +46,35 @@ fn get_div_point(html: &str) -> Point {
 }
 
 fn main() {
-    let path = String::from("https://escriva.org/pt-br/camino/999");
-    //Getting the page's HTML content
-    let html: String = get_page_content(&path).unwrap();
-    //Parsing specific div
-    let pt_167 = get_div_point(&html);
+    let mut point_vec = Vec::<Point>::new();
 
-    println!("{}", pt_167.number);
-    println!("{}", pt_167.text);
+    for &(book, max_point) in CONTROL {
+        println!("{book} {max_point}");
+        for point in 1..=max_point {
+            // Build URL to specified book and point
+            let url = format!("{BASE_URL}/{book}/{point}");
+
+            // Obtain HTML page content
+            let html = get_page_content(&url).unwrap();
+
+            //Parsing specific div
+            let mut point = get_div_point(&html);
+
+            point.book = (&book).to_string();
+
+            println!("{}", point.book);
+            println!("{}", point.number);
+            println!("{}", point.text);
+
+            point_vec.push(point);
+        }
+    }
+
+    // //debug
+    // for point in point_vec {
+    //     println!("Book: {}", point.book);
+    //     println!("Number: {}", point.number);
+    //     println!("Text: {}", point.text);
+    //     println!("---");
+    // }
 }
